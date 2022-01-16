@@ -11,6 +11,7 @@ class MovieApi(private val handler: MovieHandler) {
                 GET("/movies") { handler.findAll() }
                 GET("/movie/{id}", handler::findOne)
                 GET("/movie/{id}/showTimes", handler::findShowTimes)
+                PUT("/movie/{id}", handler::updatePriceAndShowTimes)
             }
         }
     }

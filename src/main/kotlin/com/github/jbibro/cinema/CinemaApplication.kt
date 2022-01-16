@@ -2,6 +2,7 @@ package com.github.jbibro.cinema
 
 import com.github.jbibro.cinema.movie.MovieHandler
 import com.github.jbibro.cinema.movie.api.MovieApi
+import com.github.jbibro.cinema.movie.domain.MovieService
 import com.github.jbibro.cinema.movie.infrastructure.OmdbClient
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -28,10 +29,13 @@ class BeansInitializer : ApplicationContextInitializer<GenericApplicationContext
 fun beans() = beans {
     // movie
     bean {
-        MovieHandler(ref(), ref(), ref())
+        MovieHandler(ref(), ref())
     }
     bean {
         MovieApi(ref()).router()
+    }
+    bean {
+        MovieService(ref(), ref(), ref(), ref())
     }
     bean {
         OmdbClient(ref())
