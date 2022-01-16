@@ -1,0 +1,6 @@
+context.initializer.classes: com.github.jbibro.cinema.BeansInitializerTest
+
+
+omdb:
+  url: http://localhost:8081
+  apiKey: apiKey
