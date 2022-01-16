@@ -10,6 +10,7 @@ class MovieApi(private val handler: MovieHandler) {
             accept(APPLICATION_JSON).nest {
                 GET("/movies") { handler.findAll() }
                 GET("/movie/{id}", handler::findOne)
+                GET("/movie/{id}/showTimes", handler::findShowTimes)
             }
         }
     }

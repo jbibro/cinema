@@ -9,6 +9,7 @@ import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.context.support.beans
+import java.time.Clock
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
@@ -27,12 +28,15 @@ class BeansInitializer : ApplicationContextInitializer<GenericApplicationContext
 fun beans() = beans {
     // movie
     bean {
-        MovieHandler(ref(), ref())
+        MovieHandler(ref(), ref(), ref())
     }
     bean {
         MovieApi(ref()).router()
     }
     bean {
         OmdbClient(ref())
+    }
+    bean {
+        Clock.systemUTC()
     }
 }

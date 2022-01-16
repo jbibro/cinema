@@ -4,6 +4,7 @@ import com.github.jbibro.cinema.movie.domain.Movie
 import com.github.jbibro.cinema.movie.domain.MovieDetails
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class MovieResponse(
     val id: String,
@@ -29,3 +30,8 @@ data class MovieDetailsResponse(
         )
     }
 }
+
+data class MovieShowTimes(
+    val id: String,
+    val showTimes: List<LocalDateTime>
+)
