@@ -1,6 +1,7 @@
 package com.github.jbibro.cinema.movie.api
 
 import com.github.jbibro.cinema.movie.data.MongoMovie
+import com.github.jbibro.cinema.rating.api.RatingRequest
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.okJson
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
@@ -16,11 +17,12 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @WireMockTest(httpPort = 8081)
 @Testcontainers
-internal class MovieApiTest {
+class RatingApiTest {
 
     @Autowired
     lateinit var webClient: WebTestClient
@@ -29,74 +31,108 @@ internal class MovieApiTest {
     lateinit var mongoTemplate: ReactiveMongoTemplate
 
     @Test
-    fun `should return list of movies`() {
-        // given some movies
-        insertMovies(
-            listOf(
-                MongoMovie(
-                    id = "5b6515a6-a2f4-4844-80ef-a8a097d65e07",
-                    title = "Fast and the Furious",
-                    imdbId = "tt0232500"
-                ),
-                MongoMovie(
-                    id = "22a60a74-4bf0-4b20-b7f9-0d2cfe136012",
-                    title = "2 Fast 2 Furious",
-                    imdbId = "tt0322259"
-                ),
-            )
-        )
-
-        // then
-        webClient
-            .get()
-            .uri("/api/movies")
-            .exchange()
-            .expectStatus()
-            .is2xxSuccessful
-            .expectBody()
-            .json(
-                """
-                 [
-                   {"id":"5b6515a6-a2f4-4844-80ef-a8a097d65e07","title":"Fast and the Furious"},
-                   {"id":"22a60a74-4bf0-4b20-b7f9-0d2cfe136012","title":"2 Fast 2 Furious"}
-                 ]
-                """.trimIndent()
-            )
-    }
-
-    @Test
-    fun `should return movie details`() {
+    fun `movie rating should be updated`() {
         // given some movie
+        val userId = "1"
+        val movieId = UUID.randomUUID().toString()
+        val rating = 3
         val movie = MongoMovie(
-            id = "5b6515a6-a2f4-4844-80ef-a8a097d65e01",
+            id = movieId,
             title = "Fast and the Furious",
             imdbId = "tt0232500"
         )
         insertMovies(listOf(movie))
 
-        // and omdb has it in its database
+        // and it's in Omdb database
         stubOmdb(movie)
 
+        // when I rate it
+        rate(userId, movieId, rating)
+
         // then
-        webClient
-            .get()
-            .uri("/api/movie/${movie.id}")
-            .exchange()
+        getMovie(movie.id)
             .expectStatus()
             .is2xxSuccessful
             .expectBody()
-            .json(
-                """
-                    {
-                      "id":"5b6515a6-a2f4-4844-80ef-a8a097d65e01",
-                      "title":"Fast and the Furious",
-                      "description": "Amazing",
-                      "releaseDate": "2001-06-22",
-                      "imdbRating": 4.5,
-                      "runtime": "PT1H40M"
-                    }
-                """.trimIndent()
-            )
+            .consumeWith { println(it.toString()) }
+            .jsonPath("$.userRating")
+            .isEqualTo(rating)
+    }
+
+    @Test
+    fun `user can change rating`() {
+        // given some movie
+        val userId = "1"
+        val movieId = UUID.randomUUID().toString()
+        val rating = 3
+        val newRating = 1
+        val movie = MongoMovie(
+            id = movieId,
+            title = "Fast and the Furious",
+            imdbId = "tt0232500"
+        )
+        insertMovies(listOf(movie))
+
+        // and it's in Omdb database
+        stubOmdb(movie)
+
+        // when I rate it
+        rate(userId, movieId, rating)
+        rate(userId, movieId, newRating)
+
+        // then
+        getMovie(movie.id)
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody()
+            .jsonPath("$.userRating")
+            .isEqualTo(newRating)
+    }
+
+    @Test
+    fun `should return correct average value`() {
+        // given some movie
+        val firstUser = "1"
+        val secondUser = "2"
+        val movieId = UUID.randomUUID().toString()
+        val firstUserRating = 3
+        val secondUserRating = 4
+        val movie = MongoMovie(
+            id = movieId,
+            title = "Fast and the Furious",
+            imdbId = "tt0232500"
+        )
+        insertMovies(listOf(movie))
+
+        // and it's in Omdb database
+        stubOmdb(movie)
+
+        // when I rate it
+        rate(firstUser, movieId, firstUserRating)
+        rate(secondUser, movieId, secondUserRating)
+
+        // then
+        getMovie(movie.id)
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody()
+            .jsonPath("$.userRating")
+            .isEqualTo(3.5)
+    }
+
+    private fun getMovie(id: String) = webClient
+        .get()
+        .uri("/api/movie/$id")
+        .exchange()
+
+    private fun rate(userId: String, movieId: String, rating: Int) {
+        webClient
+            .post()
+            .uri("/api/users/{id}/movie-ratings", userId)
+            .bodyValue(RatingRequest(movieId, rating))
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
     }
 
     private fun stubOmdb(movie: MongoMovie) {

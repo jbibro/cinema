@@ -4,6 +4,9 @@ import com.github.jbibro.cinema.movie.MovieHandler
 import com.github.jbibro.cinema.movie.api.MovieApi
 import com.github.jbibro.cinema.movie.domain.MovieService
 import com.github.jbibro.cinema.movie.infrastructure.OmdbClient
+import com.github.jbibro.cinema.rating.RatingHandler
+import com.github.jbibro.cinema.rating.api.RatingApi
+import com.github.jbibro.cinema.rating.domain.RatingService
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
@@ -42,5 +45,16 @@ fun beans() = beans {
     }
     bean {
         Clock.systemUTC()
+    }
+
+    // ratings
+    bean {
+        RatingHandler(ref())
+    }
+    bean {
+        RatingApi(ref()).router()
+    }
+    bean {
+        RatingService(ref(), ref())
     }
 }

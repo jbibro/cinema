@@ -17,7 +17,8 @@ data class MovieDetailsResponse(
     val description: String,
     val releaseDate: LocalDate,
     val runtime: Duration,
-    val imdbRating: Double
+    val imdbRating: Double,
+    val userRating: Double
 ) {
     companion object {
         fun fromDomain(movie: Movie, movieDetails: MovieDetails) = MovieDetailsResponse(
@@ -26,7 +27,8 @@ data class MovieDetailsResponse(
             description = movieDetails.description,
             releaseDate = movieDetails.releaseDate,
             runtime = movieDetails.runtime,
-            imdbRating = movieDetails.imdbRating
+            imdbRating = movieDetails.imdbRating,
+            userRating = movie.averageRating()
         )
     }
 }

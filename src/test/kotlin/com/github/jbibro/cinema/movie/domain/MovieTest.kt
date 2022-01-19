@@ -63,10 +63,25 @@ internal class MovieTest {
         assertEquals(listOf(upcomingShow), movie.futureShowTimes(clock))
     }
 
+    @Test
+    fun `should calculate average rating`() {
+        // given
+        val movie = anyMovie().copy(
+            ratings = listOf(
+                RatingToCount(3, 10),
+                RatingToCount(5, 3)
+            )
+        )
+
+        // expect
+        assertEquals(3.46, movie.averageRating())
+    }
+
     private fun anyMovie() = Movie(
         id = "id",
         title = "title",
         imdbId = "imdbId",
-        showTimes = emptyList()
+        showTimes = emptyList(),
+        ratings = emptyList()
     )
 }

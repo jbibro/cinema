@@ -7,5 +7,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties(prefix = "omdb")
 data class OmdbSettings(
     val url: String,
-    val apiKey: String
+    val apiKey: String,
+    val connectionTimeoutMs: Int = 3000,
+    val readTimeoutMs: Int = 1000
 )

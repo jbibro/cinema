@@ -33,7 +33,7 @@ class MovieService(
             .switchIfEmpty(Mono.error(CinemaException(ErrorCode.MOVIE_NOT_FOUND)))
             .map { it.toDomain() }
             .filter { it.isNowPlaying(clock) }
-            .switchIfEmpty(Mono.error(CinemaException(ErrorCode.NO_UPCOMING_SHOWTIMES)))
+            .switchIfEmpty(Mono.error(CinemaException(ErrorCode.NO_UPCOMING_SHOWS)))
             .map { it.futureShowTimes(clock) }
 
     fun updatePriceAndShowTimes(id: String, newPrice: Int, newShowTimes: List<LocalDateTime>) =
@@ -47,4 +47,29 @@ class MovieService(
             )
             .first()
             .then()
+
+    fun updateMovieRating(movieId: String, rating: Int, oldUserRating: Int? = null) =
+        repository
+            .existsById(movieId)
+            .filter { it == true }
+            .switchIfEmpty(Mono.error(CinemaException(ErrorCode.MOVIE_NOT_FOUND)))
+            .flatMap {
+                mongoTemplate
+                    .update<MongoMovie>()
+                    .matching(query(where("id").`is`(movieId)))
+                    .apply(
+                        Update()
+                            .inc("ratings.$rating", 1)
+                            .removeOldRating(oldUserRating)
+                    )
+                    .first()
+                    .then()
+            }
+
+    private fun Update.removeOldRating(oldUserRating: Int?): Update =
+        apply {
+            oldUserRating?.let {
+                inc("ratings.$it", -1)
+            }
+        }
 }

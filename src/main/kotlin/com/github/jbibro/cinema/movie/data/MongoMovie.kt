@@ -1,6 +1,7 @@
 package com.github.jbibro.cinema.movie.data
 
 import com.github.jbibro.cinema.movie.domain.Movie
+import com.github.jbibro.cinema.movie.domain.RatingToCount
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.mapping.Document
@@ -14,7 +15,14 @@ data class MongoMovie(
     val title: String,
     val imdbId: String,
     val price: Int? = null,
-    val showTimes: List<LocalDateTime> = emptyList()
+    val showTimes: List<LocalDateTime> = emptyList(),
+    val ratings: Map<String, Int> = emptyMap()
 ) {
-    fun toDomain() = Movie(id = id, title = title, showTimes = showTimes, imdbId = imdbId)
+    fun toDomain() = Movie(
+        id = id,
+        title = title,
+        showTimes = showTimes,
+        imdbId = imdbId,
+        ratings = ratings.map { (k, v) -> RatingToCount(k.toInt(), v) }
+    )
 }
