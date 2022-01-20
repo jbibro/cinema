@@ -90,7 +90,7 @@ internal class MovieApiTest {
         // then
         webClient
             .get()
-            .uri("/api/movie/${movie.id}")
+            .uri("/api/movies/${movie.id}")
             .exchange()
             .expectStatus()
             .is2xxSuccessful
@@ -125,7 +125,7 @@ internal class MovieApiTest {
         // when I update show times
         webClient
             .put()
-            .uri("/api/movie/${movie.id}")
+            .uri("/api/movies/${movie.id}")
             .bodyValue(
                 MovieUpdateRequest(
                     price = 10,
@@ -141,7 +141,7 @@ internal class MovieApiTest {
         // then
         webClient
             .get()
-            .uri("/api/movie/${movie.id}/show-times")
+            .uri("/api/movies/${movie.id}/show-times")
             .exchange()
             .expectStatus()
             .is2xxSuccessful

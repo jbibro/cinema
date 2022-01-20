@@ -125,7 +125,7 @@ class RatingApiTest {
 
     private fun getMovie(id: String) = webClient
         .get()
-        .uri("/api/movie/$id")
+        .uri("/api/movies/$id")
         .exchange()
 
     private fun rate(userId: String, movieId: String, rating: Int) {
