@@ -3,3 +3,8 @@ context.initializer.classes: com.github.jbibro.cinema.BeansInitializer
 omdb:
   url: http://www.omdbapi.com/
   apiKey: #Fill the api key, can be delivered as omdb.apiKey environment variable too
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://cinema_user:password@localhost:27521/cinema

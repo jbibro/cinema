@@ -1,0 +1,19 @@
+== List movies
+include::{snippets}/list-movies/http-request.adoc[]
+include::{snippets}/list-movies/http-response.adoc[]
+
+== Get movie
+include::{snippets}/get-movie/http-request.adoc[]
+include::{snippets}/get-movie/http-response.adoc[]
+
+== Get show times
+include::{snippets}/get-show-times/http-request.adoc[]
+include::{snippets}/get-show-times/http-response.adoc[]
+
+== Update show times and price
+include::{snippets}/update-show-times/http-request.adoc[]
+include::{snippets}/update-show-times/http-response.adoc[]
+
+== Rate movie
+include::{snippets}/rate-movie/http-request.adoc[]
+include::{snippets}/rate-movie/http-response.adoc[]

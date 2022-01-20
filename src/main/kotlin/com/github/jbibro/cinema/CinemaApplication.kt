@@ -13,6 +13,8 @@ import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.context.support.beans
+import org.springframework.core.io.ClassPathResource
+import org.springframework.web.reactive.function.server.RouterFunctions
 import java.time.Clock
 
 @SpringBootApplication
@@ -56,5 +58,9 @@ fun beans() = beans {
     }
     bean {
         RatingService(ref(), ref())
+    }
+
+    bean {
+        RouterFunctions.resources("/**", ClassPathResource("static/"))
     }
 }

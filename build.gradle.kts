@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.springframework.boot") version "2.6.2"
@@ -6,10 +5,10 @@ plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
+    id("com.google.cloud.tools.jib") version "3.1.4"
 }
 
-group = "com.github.jbibro"
-version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -19,9 +18,12 @@ repositories {
 extra["springCloudVersion"] = "2021.0.0"
 extra["testcontainersVersion"] = "1.16.2"
 
+val asciidoctorExtensions: Configuration by configurations.creating
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.restdocs:spring-restdocs-webtestclient:2.0.6.RELEASE")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -33,6 +35,7 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mongodb")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0")
+    asciidoctorExtensions("org.springframework.restdocs:spring-restdocs-asciidoctor")
 }
 
 dependencyManagement {
@@ -42,13 +45,47 @@ dependencyManagement {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+tasks {
+    val snippetsDir = file("$buildDir/generated-snippets")
+
+    clean {
+        delete("src/main/resources/static/docs")
+    }
+
+    compileKotlin {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "11"
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        systemProperty("org.springframework.restdocs.outputDir", snippetsDir)
+        outputs.dir(snippetsDir)
+    }
+
+    asciidoctor {
+        dependsOn(test)
+
+        attributes(
+            mapOf("snippets" to snippetsDir)
+        )
+        inputs.dir(snippetsDir)
+        doFirst {
+            delete("src/main/resources/static/docs")
+        }
+        doLast {
+            copy {
+                from(outputDir)
+                into("src/main/resources/static/docs")
+            }
+        }
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+jib {
+    container {
+        jvmFlags = listOf("-Dspring.profiles.active=docker")
+    }
 }

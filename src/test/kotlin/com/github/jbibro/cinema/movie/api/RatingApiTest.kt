@@ -9,8 +9,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -22,6 +24,7 @@ import java.util.UUID
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @WireMockTest(httpPort = 8081)
 @Testcontainers
+@AutoConfigureRestDocs
 class RatingApiTest {
 
     @Autowired
@@ -133,6 +136,8 @@ class RatingApiTest {
             .exchange()
             .expectStatus()
             .is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("rate-movie"))
     }
 
     private fun stubOmdb(movie: MongoMovie) {

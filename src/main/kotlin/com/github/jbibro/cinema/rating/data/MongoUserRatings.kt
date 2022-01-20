@@ -3,7 +3,7 @@ package com.github.jbibro.cinema.rating.data
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.mapping.Document
-import java.util.*
+import java.util.UUID
 
 @Document("ratings")
 @TypeAlias("rating")
