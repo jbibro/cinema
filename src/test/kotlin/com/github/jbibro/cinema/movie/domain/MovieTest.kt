@@ -77,6 +77,15 @@ internal class MovieTest {
         assertEquals(3.46, movie.averageRating())
     }
 
+    @Test
+    fun `should return null if there are no ratings`() {
+        // given
+        val movie = anyMovie().copy(ratings = listOf())
+
+        // expect
+        assertEquals(null, movie.averageRating())
+    }
+
     private fun anyMovie() = Movie(
         id = "id",
         title = "title",

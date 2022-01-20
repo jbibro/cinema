@@ -18,7 +18,7 @@ data class MovieDetailsResponse(
     val releaseDate: LocalDate,
     val runtime: Duration,
     val imdbRating: Double,
-    val userRating: Double
+    val userRating: Double?
 ) {
     companion object {
         fun fromDomain(movie: Movie, movieDetails: MovieDetails) = MovieDetailsResponse(
