@@ -3,19 +3,13 @@ package com.github.jbibro.cinema.rating.domain
 import com.github.jbibro.cinema.CinemaException
 import com.github.jbibro.cinema.ErrorCode
 import com.github.jbibro.cinema.movie.domain.MovieService
-import com.github.jbibro.cinema.rating.data.MongoUserRatings
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.findOne
-import org.springframework.data.mongodb.core.query.Criteria.where
-import org.springframework.data.mongodb.core.query.Query.query
-import org.springframework.data.mongodb.core.query.Update
-import org.springframework.data.mongodb.core.update
+import com.github.jbibro.cinema.rating.data.RatingRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 
 class RatingService(
-    private val mongoTemplate: ReactiveMongoTemplate,
+    private val ratingRepository: RatingRepository,
     private val movieService: MovieService
 ) {
 
@@ -27,7 +21,7 @@ class RatingService(
             .flatMap {
                 Flux.concat(
                     updateMovieRating(userId, movieId, rating),
-                    updateUserProfile(userId, movieId, rating)
+                    ratingRepository.addOrUpdateRating(movieId, rating, userId)
                 )
                     .then()
             }
@@ -41,17 +35,10 @@ class RatingService(
             }
 
     private fun previousUserRating(userId: String, movieId: String): Mono<Int> {
-        return mongoTemplate
-            .findOne<MongoUserRatings>(query(where("userId").`is`(userId)))
+        return ratingRepository
+            .findFirstByUserId(userId)
             .mapNotNull {
                 it.ratings[movieId]
             }
     }
-
-    private fun updateUserProfile(userId: String, movieId: String, rating: Int) = mongoTemplate
-        .update<MongoUserRatings>()
-        .matching(query(where("userId").`is`(userId)))
-        .apply(Update().set("ratings.$movieId", rating))
-        .upsert()
-        .then()
 }

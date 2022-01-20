@@ -40,7 +40,7 @@ fun beans() = beans {
         MovieApi(ref()).router()
     }
     bean {
-        MovieService(ref(), ref(), ref(), ref())
+        MovieService(ref(), ref(), ref())
     }
     bean {
         OmdbClient(ref())
