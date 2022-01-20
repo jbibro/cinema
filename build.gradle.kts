@@ -65,6 +65,10 @@ tasks {
         outputs.dir(snippetsDir)
     }
 
+    build {
+        dependsOn(asciidoctor)
+    }
+
     asciidoctor {
         dependsOn(test)
 
