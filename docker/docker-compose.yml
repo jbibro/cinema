@@ -14,6 +14,8 @@ services:
       - ./provisioning/:/docker-entrypoint-initdb.d/
   cinema:
     image: cinema
+    environment:
+      omdb.apiKey: ${OMDB_APIKEY}
     ports:
       - 8080:8080
     depends_on:
